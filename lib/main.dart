@@ -226,7 +226,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
 
   //http通信
   void _callAPI() async{
-    var url = Uri.https('c9ce-116-82-21-249.ngrok-free.app','/api1/qs/');
+    var url = Uri.https('cf4c-61-215-148-214.ngrok-free.app','/api1/qs/');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {

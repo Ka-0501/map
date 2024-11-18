@@ -2,14 +2,15 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
+import 'http_connecter.dart';
 
 
 class Rote{
 
+  final ApiClient ac = ApiClient();
   List<LatLng> _routeDatas = [];
   LatLng _pointA = LatLng(35.701094,139.507086);
   LatLng _pointB = LatLng(34.879299,138.857710);
-  final String _url = "https://c9ce-116-82-21-249.ngrok-free.app";
 
   List<LatLng> get routeDatas => _routeDatas;
 
@@ -22,8 +23,7 @@ class Rote{
   }
 
   String setUrl() {
-    String url = "$_url/search-route?point=${_pointA.latitude}%2C${_pointA.longitude}&point=${_pointB.latitude}%2C${_pointB.longitude}&profile=car";
-    debugPrint(url);
+    String url = "search-route?point=${_pointA.latitude}%2C${_pointA.longitude}&point=${_pointB.latitude}%2C${_pointB.longitude}&profile=car";
     return url;
   }
 
@@ -32,18 +32,15 @@ class Rote{
     String points = "null";
 
     try{
-      final response = await http.get(Uri.parse(setUrl()));
-      if(response.statusCode == 200) {
-        //通信が成功したら、レスポンスをデコード
-        final data = json.decode(response.body);
-
+      final data = await ac.request(setUrl());
+        //debugPrint('取得したデータ：$data');
         //レスポンスからポリゴンラインを抽出
-        points = data['paths'][0]['points'];
-        return points;
-      }
-      else {
-        debugPrint('Failed to load data: ${response.statusCode}');
-        return points;
+      final paths = data['paths'] as List<dynamic>;
+      if (paths.isNotEmpty) {
+        final points = paths[0]['points']; // 最初のpathのpointsを取得
+        return points as String;
+      } else {
+        throw Exception('No paths found in response.');
       }
     }
     catch(e) {
